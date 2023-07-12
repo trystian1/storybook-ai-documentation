@@ -1,6 +1,6 @@
 {
   "name": "storybook-addon-ai-documentation",
-  "version": "0.0.1",
+  "version": "0.0.2--canary.b5f6374.0",
   "description": "This addon will provide you with documentation about the component displayed. So new users to your codebase can read how to use it",
   "keywords": [
     "documentation",
