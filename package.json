@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "description": "This addon will provide you with documentation about the component displayed. So new users to your codebase can read how to use it",
   "keywords": [
-    "documentation", "ai", "generated", "storybook-addons"
+    "documentation",
+    "ai",
+    "generated",
+    "storybook-addons"
   ],
   "repository": {
     "type": "git",
@@ -105,5 +108,9 @@
       "react"
     ],
     "icon": "https://user-images.githubusercontent.com/321738/63501763-88dbf600-c4cc-11e9-96cd-94adadc2fd72.png"
+  },
+  "dependencies": {
+    "openai": "^3.3.0",
+    "react-markdown": "^8.0.7"
   }
 }

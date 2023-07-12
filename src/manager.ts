@@ -30,7 +30,7 @@ addons.register(ADDON_ID, () => {
   // Register the tab
   addons.add(TAB_ID, {
     type: types.TAB,
-    title: "My addon",
+    title: "Generate my docs ✨🤖",
     //👇 Checks the current route for the story
     route: ({ storyId }) => `/myaddon/${storyId}`,
     //👇 Shows the Tab UI element in myaddon view mode

@@ -1,7 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "@storybook/theming";
 import { H1, Link, Code } from "@storybook/components";
-
+import { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } from "openai"
+import { useAddonState } from '@storybook/manager-api';
+import ReactMarkdown from 'react-markdown'
+const configuration = new Configuration({
+  apiKey: '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',
+});
+const openai = new OpenAIApi(configuration);
 const TabWrapper = styled.div(({ theme }) => ({
   background: theme.background.content,
   padding: "4rem 20px",
@@ -15,33 +21,53 @@ const TabInner = styled.div({
   marginRight: "auto",
 });
 
-interface TabContentProps {
+export interface TabContentProps {
   code: string;
+  file: string
 }
 
-export const TabContent: React.FC<TabContentProps> = ({ code }) => (
-  <TabWrapper>
-    <TabInner>
-      <H1>My Addon</H1>
-      <p>
-        Your addon can create a custom tab in Storybook. For example, the
-        official{" "}
-        <Link href="https://storybook.js.org/docs/react/writing-docs/introduction">
-          @storybook/addon-docs
-        </Link>{" "}
-        uses this pattern.
-      </p>
-      <p>
-        You have full control over what content is being rendered here. You can
-        use components from{" "}
-        <Link href="https://github.com/storybookjs/storybook/tree/next/code/ui/components">
-          @storybook/components
-        </Link>{" "}
-        to match the look and feel of Storybook, for example the{" "}
-        <code>&lt;Code /&gt;</code> component below. Or build a completely
-        custom UI.
-      </p>
-      <Code>{code}</Code>
-    </TabInner>
-  </TabWrapper>
-);
+export const TabContent: React.FC<TabContentProps> = ({file}) => {
+
+  const [resultAi, setResultAi] = useState('')
+  const [isLoading, setLoading] = useState(false)
+
+  useEffect(() => {
+    console.log('ZE FILE', file)
+    if (file) {
+      const [_, rawFileName] = new RegExp(/sourceMappingURL=(.*)/).exec(file);
+      
+      fetch(rawFileName).then(result => {
+        result.json().then(jsFile => {
+                    
+          const messages = [];
+          messages.push(
+            { role: ChatCompletionRequestMessageRoleEnum.System, content: `You're a great Javascript software engineers, with a passion of helping junior engineers. You're great in developing React applications an know everything about it. You can explain complex code in an eloborate way that everyone understands it.` }, 
+          )
+          setLoading(true);
+          openai.createChatCompletion({
+            model: "gpt-3.5-turbo-16k",
+            messages: [
+              ...messages,
+              { role: ChatCompletionRequestMessageRoleEnum.User, content: `Can you make documentation of the following React component ${jsFile.sourcesContent[0]}, return the result in markdown. With extensive explaination of how to use the component and explaining in text what the component does. Provide a few examples on how to use the component. Provide tips and tricks on how to use the component. Then some useful links regarding the React component. End with a small code review on the component, and how to improve it.` }],
+            max_tokens: 3500,
+            
+          }).then((result) => {
+            setResultAi(result.data.choices[0].message.content);
+            setLoading(false);
+          })
+        })
+      })
+    }
+
+  }, [file])
+
+  return   <TabWrapper>
+  <TabInner>
+    <H1>Generate my AI docs</H1>
+    {isLoading && <span>loading.... takes long....</span>}
+    <ReactMarkdown>
+      {resultAi}
+    </ReactMarkdown>
+  </TabInner>
+</TabWrapper>
+}
